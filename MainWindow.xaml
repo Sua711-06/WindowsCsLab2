@@ -1,4 +1,4 @@
-﻿<Window x:Class="Lab2.MainWindow"
+<Window x:Class="Lab2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,30 +9,108 @@
         Title="MainWindow" Height="450" Width="1000">
     <Window.Resources>
         <local:People x:Key="peopleModel" />
+        <local:ColorConverter x:Key="ColorConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <local:DateOnlyToDateTimeConverter x:Key="DateOnlyToDateTimeConverter" />
+
+        <Style x:Key="StretchedListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
 
         <CollectionViewSource x:Key="PeopleListCollectionViewSource" 
                                   Source="{Binding Source={StaticResource peopleModel}, Path=PeopleList}" />
 
         <DataTemplate x:Key="PeopleListDataTemplate">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ID}" />
-                    <TextBlock Text="  " />
-                    <TextBlock Text="{Binding FirstName}" FontWeight="Bold"/>
-                    <TextBlock Text="  " />
-                    <TextBlock Text="{Binding LastName}" FontWeight="Bold" />
-                    <TextBlock Text="  " />
-                    <TextBlock Text="{Binding Salary, StringFormat=C}" FontWeight="Bold" />
-                </StackPanel>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <Border BorderThickness="5" BorderBrush="{Binding Color, Converter={StaticResource ColorConverter}}" Margin="0,0,0,5" Padding="10" CornerRadius="5">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Name:" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding FirstName}" Margin="5,0,0,0"/>
+                            <TextBlock Text="{Binding LastName}" Margin="5,0,0,0"/>
+                            <TextBlock Text="| Email:" FontWeight="Bold" Margin="5,0,0,0"/>
+                            <TextBlock Text="{Binding Email}" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <Expander IsExpanded="{Binding IsCardFocused}">
+                            <Expander.Header>
+                                <TextBlock Text="More Info"/>
+                            </Expander.Header>
+                            
+                            <StackPanel Orientation="Vertical">
+                                <!-- View Mode -->
+                                <WrapPanel Orientation="Vertical" MaxHeight="50" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,5,5">
+                                        <TextBlock Text="Phone Number: " FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding PhoneNumber}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,5,5">
+                                        <TextBlock Text="Address: " FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Address}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,5,5">
+                                        <TextBlock Text="Salary: " FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Salary, StringFormat=C}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,5,5">
+                                        <TextBlock Text="Birthday: " FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Birthday}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,5,5">
+                                        <TextBlock Text="Notes: " FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Notes}"/>
+                                    </StackPanel>
+                                </WrapPanel>
+                                
+                                <!-- Edit Mode -->
+                                <WrapPanel MaxHeight="100" Orientation="Vertical" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Phone Number:" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="24"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Address:" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="24"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Salary:" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding Salary, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="24"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Birthday:" FontWeight="Bold"/>
+                                        <DatePicker SelectedDate="{Binding Birthday, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateOnlyToDateTimeConverter}}" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Colour:" FontWeight="Bold"/>
+                                        <xctk:ColorPicker SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ColorConverter}}" Width="200" Height="24"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                                        <TextBlock Text="Notes:" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="24" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </WrapPanel>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Edit" Background="LightGoldenrodYellow" Width="75" Margin="0,5,5,0" Click="EditContactBtn_Click" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
+                                    <Button Content="Save" Background="LimeGreen" Width="75" Margin="0,5,5,0" Click="SaveContactBtn_Click" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Button Content="Cancel" Background="Pink" Width="75" Margin="0,5,0,0" Click="CancelEditBtn_Click" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Button Content="Delete" Background="Pink" Width="75" Margin="0,5,0,0" Click="DeleteContactBtn_Click" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
 
-    <Window.DataContext>
-        <local:People />
-    </Window.DataContext>
     <Grid>
-        <StackPanel Orientation="Vertical">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Orientation="Vertical" Grid.Row="0">
             <Border BorderThickness="0,0,0,1" BorderBrush="Black">
                 <StackPanel>
                     <Grid VerticalAlignment="Center" Width="auto">
@@ -54,9 +132,9 @@
                             <Label Content="E-mail:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                             <TextBox x:Name="EmailBox" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Width="200" Height="24"/>
                         </StackPanel>
-                        <Button x:Name="ContactBtn" Content="Add Contact" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Column="3" Margin="0,0,10,5" Padding="3,3,3,3" UseLayoutRounding="True" />
+                        <Button Background="CornflowerBlue" x:Name="ContactBtn" Content="Add Contact" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Column="3" Margin="0,0,15,5" Padding="3,3,3,3" UseLayoutRounding="True" Click="ContactBtn_Click" />
                     </Grid>
-                    <Expander>
+                    <Expander Margin="10,0,0,10">
                         <Expander.Header>
                             <TextBlock Text="Additional Information"/>
                         </Expander.Header>
@@ -70,6 +148,10 @@
                                 <TextBox x:Name="AddressBox" Width="200" Height="24"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="10">
+                                <TextBlock Text="Salary:"/>
+                                <TextBox x:Name="SalaryBox" Width="200" Height="24"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="10">
                                 <TextBlock Text="Birthday"/>
                                 <DatePicker x:Name="BirthdayBox" Width="200"/>
                             </StackPanel>
@@ -81,18 +163,20 @@
                                 <TextBlock Text="Notes:"/>
                                 <TextBox x:Name="NotesBox" Width="200" TextWrapping="Wrap" Height="24"/>
                             </StackPanel>
-
                         </WrapPanel>
                     </Expander>
                 </StackPanel>
-
             </Border>
-            <StackPanel x:Name="ContactsPanel" Orientation="Vertical" Margin="10,10,10,10" Height="auto">
-                <ListView x:Name="ContactsListView" 
-                          ItemsSource="{Binding Source={StaticResource PeopleListCollectionViewSource}}" 
-                          ItemTemplate="{StaticResource PeopleListDataTemplate}" />
-
-            </StackPanel>
         </StackPanel>
+        
+        <ListView x:Name="ContactsListView" 
+                  ItemsSource="{Binding Source={StaticResource PeopleListCollectionViewSource}}" 
+                  ItemTemplate="{StaticResource PeopleListDataTemplate}" 
+                  ItemContainerStyle="{StaticResource StretchedListViewItemStyle}"
+                  SelectionChanged="ContactsListView_SelectionChanged"
+                  Margin="10,10,10,10"
+                  Grid.Row="1"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"/>
     </Grid>
 </Window>

@@ -16,7 +16,7 @@ namespace Lab2
             set { _people = value; }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -29,7 +29,7 @@ namespace Lab2
                     FirstName = "John", 
                     LastName = "Doe", 
                     Salary = 50000, 
-                    Color = Color.LightGray, 
+                    Color = Color.Red, 
                     Address = "123 Main St", 
                     Birthday = new DateOnly(1990, 1, 1), 
                     Email = "john.doe@example.com", 
@@ -40,7 +40,7 @@ namespace Lab2
                     FirstName = "Jane", 
                     LastName = "Smith", 
                     Salary = 60000, 
-                    Color = Color.LightGray, 
+                    Color = Color.Blue, 
                     Address = "456 Elm St", 
                     Birthday = new DateOnly(1992, 2, 2), 
                     Email = "jane.smith@example.com", 
@@ -51,7 +51,7 @@ namespace Lab2
                     FirstName = "Michael", 
                     LastName = "Johnson", 
                     Salary = 55000, 
-                    Color = Color.LightGray, 
+                    Color = Color.Green, 
                     Address = "789 Oak St", 
                     Birthday = new DateOnly(1995, 3, 3), 
                     Email = "michael.johnson@example.com", 
@@ -62,10 +62,16 @@ namespace Lab2
 
         public void AddPerson(Person person) {
             _people.Add(person);
+            Console.WriteLine("People:\n");
+            foreach (var p in _people) {
+                Console.WriteLine($"{p.ID}: {p.FirstName} {p.LastName}");
+            }
+            OnPropertyChanged("PeopleList");
         }
 
         public void RemovePerson(Person person) {
             _people.Remove(person);
+            OnPropertyChanged("PeopleList");
         }
     }
 }
